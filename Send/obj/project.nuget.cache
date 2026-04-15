@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "/aP8otZPDbM=",
+  "success": true,
+  "projectFilePath": "C:\\Projetos\\dotnet-rabbitmq-demo\\Send\\Send.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Falke\\.nuget\\packages\\rabbitmq.client\\7.2.1\\rabbitmq.client.7.2.1.nupkg.sha512",
+    "C:\\Users\\Falke\\.nuget\\packages\\system.threading.ratelimiting\\8.0.0\\system.threading.ratelimiting.8.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
