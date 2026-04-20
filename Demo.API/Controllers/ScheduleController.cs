@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Demo.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/schedule")]
     public class ScheduleController : ControllerBase
     {
         private readonly IEventPublisher _eventPublisher;
