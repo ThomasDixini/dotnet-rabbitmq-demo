@@ -14,7 +14,13 @@ namespace Demo.API.Infra
         private readonly IChannel _channel;
         public RabbitMQPublisher(IConfiguration configuration)
         {
-                ConnectionFactory factory = new ConnectionFactory() { HostName = "localhost" };
+                ConnectionFactory factory = new ConnectionFactory()
+                {
+                    HostName = configuration["RabbitMQ:HostName"] ?? "localhost",
+                    Port = int.Parse(configuration["RabbitMQ:Port"] ?? "5672"),
+                    UserName = configuration["RabbitMQ:UserName"] ?? "guest",
+                    Password = configuration["RabbitMQ:Password"] ?? "guest"
+                };
                 _connection = factory.CreateConnectionAsync().Result;
                 _channel = _connection.CreateChannelAsync().Result;
 

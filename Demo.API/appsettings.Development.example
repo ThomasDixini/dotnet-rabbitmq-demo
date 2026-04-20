@@ -5,4 +5,11 @@
       "Microsoft.AspNetCore": "Warning"
     }
   }
+
+  "RabbitMQ": {
+    "HostName": YourHostname, // example: localhost
+    "Port": Port of RabbitMQ server,
+    "UserName": rabbitMQ username,
+    "Password": rabbitMQ password
+  }
 }
