@@ -45,5 +45,29 @@ namespace Demo.API.Controllers
                 Queues = new[] { QueueNames.CustomerNotificationQueue, QueueNames.AdmNotificationQueue }
             });
         }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> CancelSchedule(int id, [FromBody] CancelScheduleRequest request)
+        {
+            var task = new {
+                CustomerName = request.CustomerName,
+                Procedure = request.Procedure,
+                ScheduleDate = request.ScheduleDate,
+                Token = request.Token
+            };
+
+            await _eventPublisher.PublishAsync(task, ExchangeNames.NotificationsExchange, RoutingKeys.CustomerNotification);
+            _logger.LogInformation("Schedule event published for ScheduleId: {ScheduleId}", id);
+
+            await _eventPublisher.PublishAsync(task, ExchangeNames.NotificationsExchange, RoutingKeys.AdmNotification);
+            _logger.LogInformation("Schedule event published for ScheduleId: {ScheduleId}", id);
+
+            return Ok(new
+            {
+                Message = "Schedule canceled and notifications published successfully.",
+                ScheduleId = id,
+                Queues = new[] { QueueNames.CustomerNotificationQueue, QueueNames.AdmNotificationQueue }
+            });
+        }
     }
 }

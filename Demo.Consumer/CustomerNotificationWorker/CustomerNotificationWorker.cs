@@ -12,7 +12,7 @@ using RabbitMQ.Client.Events;
 
 namespace Demo.Consumer.CustomerNotificationWorker
 {
-    public class CustomerNotificationWorker(IConfiguration _configuration, ILogger<CustomerNotificationWorker> _logger, ConfirmatedScheduleHandler _confirmatedScheduleHandler) : BackgroundService
+    public class CustomerNotificationWorker(IConfiguration _configuration, ILogger<CustomerNotificationWorker> _logger, ConfirmatedScheduleHandler _confirmatedScheduleHandler, CanceledScheduleHandler _canceledScheduleHandler) : BackgroundService
     {
         private IConnection _connection = null!;
         private IChannel _channel = null!;
@@ -42,6 +42,14 @@ namespace Demo.Consumer.CustomerNotificationWorker
                     var message = JsonSerializer.Deserialize<ConfirmatedScheduleEvent>(json);
                     if(message is not null)
                         await _confirmatedScheduleHandler.HandleCustomerScheduleConfirmation(message);
+                    else 
+                    {
+                        var canceledMessage = JsonSerializer.Deserialize<CanceledScheduleEvent>(json);
+                        if(canceledMessage is not null)
+                            await _canceledScheduleHandler.HandleAdmScheduleCancellation(canceledMessage);
+                        else
+                            _logger.LogWarning("[ADM WORKER] Mensagem recebida com formato desconhecido: {Json}", json);
+                    }
 
                     await _channel.BasicAckAsync(ea.DeliveryTag, false, stoppingToken);
                 }

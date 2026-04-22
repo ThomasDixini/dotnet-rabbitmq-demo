@@ -12,7 +12,7 @@ using System.Text.Json;
 
 namespace Demo.Consumer.AdmNotificationWorker
 {
-    public class AdmNotificationWorker(IConfiguration _configuration, ILogger<AdmNotificationWorker> _logger, ConfirmatedScheduleHandler _confirmatedScheduleHandler) : BackgroundService
+    public class AdmNotificationWorker(IConfiguration _configuration, ILogger<AdmNotificationWorker> _logger, ConfirmatedScheduleHandler _confirmatedScheduleHandler, CanceledScheduleHandler _canceledScheduleHandler) : BackgroundService
     {
         private IChannel _channel = null!;
         private IConnection _connection = null!;
@@ -44,6 +44,14 @@ namespace Demo.Consumer.AdmNotificationWorker
                     var message = JsonSerializer.Deserialize<ConfirmatedScheduleEvent>(json);
                     if(message is not null)
                         await _confirmatedScheduleHandler.HandleAdmScheduleConfirmation(message);
+                    else 
+                    {
+                        var canceledMessage = JsonSerializer.Deserialize<CanceledScheduleEvent>(json);
+                        if(canceledMessage is not null)
+                            await _canceledScheduleHandler.HandleAdmScheduleCancellation(canceledMessage);
+                        else
+                            _logger.LogWarning("[ADM WORKER] Mensagem recebida com formato desconhecido: {Json}", json);
+                    }
 
                     await _channel.BasicAckAsync(ea.DeliveryTag, false, stoppingToken);
                 } catch (Exception ex)
