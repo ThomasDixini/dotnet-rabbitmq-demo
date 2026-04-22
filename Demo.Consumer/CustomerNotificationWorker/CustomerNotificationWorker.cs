@@ -46,9 +46,9 @@ namespace Demo.Consumer.CustomerNotificationWorker
                     {
                         var canceledMessage = JsonSerializer.Deserialize<CanceledScheduleEvent>(json);
                         if(canceledMessage is not null)
-                            await _canceledScheduleHandler.HandleAdmScheduleCancellation(canceledMessage);
+                            await _canceledScheduleHandler.HandleCustomerScheduleCancellation(canceledMessage);
                         else
-                            _logger.LogWarning("[ADM WORKER] Mensagem recebida com formato desconhecido: {Json}", json);
+                            _logger.LogWarning("[CUSTOMER WORKER] Mensagem recebida com formato desconhecido: {Json}", json);
                     }
 
                     await _channel.BasicAckAsync(ea.DeliveryTag, false, stoppingToken);

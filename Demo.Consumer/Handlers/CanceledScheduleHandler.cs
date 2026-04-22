@@ -7,7 +7,7 @@ using Demo.Contracts.Events;
 
 namespace Demo.Consumer.Handlers
 {
-    public class CanceledScheduleHandler(ILogger<CanceledScheduleHandler> _logger)
+    public class CanceledScheduleHandler(ILogger<CanceledScheduleHandler> _logger, HttpClient _http)
     {
         public async Task HandleAdmScheduleCancellation(CanceledScheduleEvent body)
         {
@@ -24,7 +24,7 @@ namespace Demo.Consumer.Handlers
             var json = System.Text.Json.JsonSerializer.Serialize(eventMessage);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await new HttpClient().PostAsync("https://exp.host/--/api/v2/push/send", content);
+            var response = await _http.PostAsync("https://exp.host/--/api/v2/push/send", content);
             var result = await response.Content.ReadAsStringAsync();
 
             _logger.LogInformation($"Push notification response: {result}");
@@ -44,7 +44,7 @@ namespace Demo.Consumer.Handlers
             var json = System.Text.Json.JsonSerializer.Serialize(eventMessage);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await new HttpClient().PostAsync("https://exp.host/--/api/v2/push/send", content);
+            var response = await _http.PostAsync("https://exp.host/--/api/v2/push/send", content);
             var result = await response.Content.ReadAsStringAsync();
 
             _logger.LogInformation($"Push notification response: {result}");

@@ -3,7 +3,7 @@ using Demo.API.Infra;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped<IEventPublisher, RabbitMQPublisher>();
+builder.Services.AddSingleton<IEventPublisher, RabbitMQPublisher>();
 builder.Services.AddControllers();
 var app = builder.Build();
 
