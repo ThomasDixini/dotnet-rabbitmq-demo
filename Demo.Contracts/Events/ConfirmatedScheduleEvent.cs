@@ -11,5 +11,6 @@ namespace Demo.Contracts.Events
         public string CustomerName { get; set; } = string.Empty;
         public DateTime ScheduleDate { get; set; }
         public string Procedure { get; set; } = string.Empty;
+        public string Token { get; set; } = string.Empty;
     }
 }
