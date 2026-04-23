@@ -9,23 +9,6 @@
 - [✅ Visão Geral do Projeto](#-visão-geral-do-projeto)
 - [🏗️ Arquitetura do Projeto](#️-arquitetura-do-projeto)
 
-
-  - [📱 Mobile App](#-mobile-app)
-  - [🔔 Expo Notifications](#-expo-notifications)
-  - [⚖️ NGINX – Load Balancer](#️-nginx--load-balancer)
-  - [🧩 Backend (Arquitetura em Camadas)](#-backend-arquitetura-em-camadas)
-  - [🔐 Autenticação – JWT (JSON Web Token)](#-autenticação--jwt-json-web-token)
-  - [🧠 API Layer (Camada de API / Controllers)](#-api-layer-camada-de-api--controllers)
-  - [⚙️ Service Layer (Camada de Serviços / Regras de Negócio)](#️-service-layer-camada-de-serviços--regras-de-negócio)
-  - [🗄️ Data Access Layer (Camada de Acesso a Dados)](#️-data-access-layer-camada-de-acesso-a-dados)
-  - [🗃️ Banco de Dados](#️-banco-de-dados)
-- [🎥 Demonstração](#-demonstração)
-  - [Screenshots](#screenshots)
-- [🛠️ Configuração sem Docker](#️-configuração-sem-docker)
-  - [Backend (.NET)](#backend-net)
-  - [Mobile (React Native/Expo)](#mobile-react-nativeexpo)
-- [🔐 Variáveis de Ambiente](#-variáveis-de-ambiente)
-
 ---
 
 
