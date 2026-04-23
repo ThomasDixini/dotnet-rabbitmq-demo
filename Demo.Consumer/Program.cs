@@ -5,9 +5,8 @@ using Demo.Consumer.Handlers;
 
 var builder = Host.CreateDefaultBuilder(args).ConfigureServices((services) =>
 {
-    services.AddTransient<CanceledScheduleHandler>();
-    services.AddTransient<ConfirmatedScheduleHandler>();
-    services.AddHttpClient();
+    services.AddHttpClient<ConfirmatedScheduleHandler>();
+    services.AddHttpClient<CanceledScheduleHandler>();
     services.AddHostedService<AdmNotificationWorker>();
     services.AddHostedService<CustomerNotificationWorker>();
 });
