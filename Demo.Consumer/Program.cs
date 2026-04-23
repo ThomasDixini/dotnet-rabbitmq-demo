@@ -3,11 +3,14 @@ using Demo.Consumer.AdmNotificationWorker;
 using Demo.Consumer.CustomerNotificationWorker;
 using Demo.Consumer.Handlers;
 
-var builder = Host.CreateApplicationBuilder(args);
-builder.Services.AddSingleton<CanceledScheduleHandler>();
-builder.Services.AddSingleton<ConfirmatedScheduleHandler>();
-builder.Services.AddHostedService<AdmNotificationWorker>();
-builder.Services.AddHostedService<CustomerNotificationWorker>();
+var builder = Host.CreateDefaultBuilder(args).ConfigureServices((services) =>
+{
+    services.AddTransient<CanceledScheduleHandler>();
+    services.AddTransient<ConfirmatedScheduleHandler>();
+    services.AddHttpClient();
+    services.AddHostedService<AdmNotificationWorker>();
+    services.AddHostedService<CustomerNotificationWorker>();
+});
 
 var host = builder.Build();
 host.Run();

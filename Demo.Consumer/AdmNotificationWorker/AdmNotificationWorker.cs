@@ -12,10 +12,20 @@ using System.Text.Json;
 
 namespace Demo.Consumer.AdmNotificationWorker
 {
-    public class AdmNotificationWorker(IConfiguration _configuration, ILogger<AdmNotificationWorker> _logger, ConfirmatedScheduleHandler _confirmatedScheduleHandler, CanceledScheduleHandler _canceledScheduleHandler) : BackgroundService
+    public class AdmNotificationWorker : BackgroundService
     {
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<AdmNotificationWorker> _logger;
         private IChannel _channel = null!;
         private IConnection _connection = null!;
+        private readonly IServiceProvider _serviceProvider;
+
+        public AdmNotificationWorker(IConfiguration _configuration, ILogger<AdmNotificationWorker> _logger, IServiceProvider serviceProvider)
+        {
+            this._configuration = _configuration;
+            this._logger = _logger;
+            this._serviceProvider = serviceProvider;
+        }
 
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
@@ -28,10 +38,17 @@ namespace Demo.Consumer.AdmNotificationWorker
             };
             _connection = await factory.CreateConnectionAsync();
             _channel = await _connection.CreateChannelAsync();
+
+            await _channel.QueueDeclareAsync(
+                queue: QueueNames.AdmNotificationQueue,
+                durable: true,
+                exclusive: false,
+                autoDelete: false
+            );
             await base.StartAsync(cancellationToken);
         }
         
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var consumer = new AsyncEventingBasicConsumer(_channel);
             consumer.ReceivedAsync += async (ch, ea) =>
@@ -41,19 +58,25 @@ namespace Demo.Consumer.AdmNotificationWorker
 
                 try
                 {
-                    var message = JsonSerializer.Deserialize<ConfirmatedScheduleEvent>(json);
-                    if(message is not null)
-                        await _confirmatedScheduleHandler.HandleAdmScheduleConfirmation(message);
-                    else 
+                    using(var scope = _serviceProvider.CreateScope())
                     {
-                        var canceledMessage = JsonSerializer.Deserialize<CanceledScheduleEvent>(json);
-                        if(canceledMessage is not null)
-                            await _canceledScheduleHandler.HandleAdmScheduleCancellation(canceledMessage);
-                        else
-                            _logger.LogWarning("[ADM WORKER] Mensagem recebida com formato desconhecido: {Json}", json);
-                    }
+                        var _confirmatedScheduleHandler = scope.ServiceProvider.GetRequiredService<ConfirmatedScheduleHandler>();
+                        var _canceledScheduleHandler = scope.ServiceProvider.GetRequiredService<CanceledScheduleHandler>();
 
-                    await _channel.BasicAckAsync(ea.DeliveryTag, false, stoppingToken);
+                        var message = JsonSerializer.Deserialize<ConfirmatedScheduleEvent>(json);
+                        if(message is not null)
+                            await _confirmatedScheduleHandler.HandleAdmScheduleConfirmation(message);
+                        else 
+                        {
+                            var canceledMessage = JsonSerializer.Deserialize<CanceledScheduleEvent>(json);
+                            if(canceledMessage is not null)
+                                await _canceledScheduleHandler.HandleAdmScheduleCancellation(canceledMessage);
+                            else
+                                _logger.LogWarning("[ADM WORKER] Mensagem recebida com formato desconhecido: {Json}", json);
+                        }
+
+                        await _channel.BasicAckAsync(ea.DeliveryTag, false, stoppingToken);
+                    }
                 } catch (Exception ex)
                 {
                     _logger.LogError(ex, "[ADM WORKER] Erro ao processar mensagem. Enviando para DLQ.");
@@ -61,8 +84,7 @@ namespace Demo.Consumer.AdmNotificationWorker
                 }
             };
             
-            _channel.BasicConsumeAsync(QueueNames.AdmNotificationQueue, false, consumer);
-            return Task.CompletedTask;
+            await _channel.BasicConsumeAsync(QueueNames.AdmNotificationQueue, false, consumer);
         }
 
         public async override void Dispose()

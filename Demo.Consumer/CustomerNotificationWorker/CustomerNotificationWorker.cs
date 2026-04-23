@@ -12,10 +12,19 @@ using RabbitMQ.Client.Events;
 
 namespace Demo.Consumer.CustomerNotificationWorker
 {
-    public class CustomerNotificationWorker(IConfiguration _configuration, ILogger<CustomerNotificationWorker> _logger, ConfirmatedScheduleHandler _confirmatedScheduleHandler, CanceledScheduleHandler _canceledScheduleHandler) : BackgroundService
+    public class CustomerNotificationWorker : BackgroundService
     {
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<CustomerNotificationWorker> _logger;
+        private readonly IServiceProvider _serviceProvider;
         private IConnection _connection = null!;
         private IChannel _channel = null!;
+        public CustomerNotificationWorker(IConfiguration _configuration, ILogger<CustomerNotificationWorker> _logger, IServiceProvider serviceProvider)
+        {
+            this._configuration = _configuration;
+            this._logger = _logger;
+            this._serviceProvider = serviceProvider;
+        }
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
             ConnectionFactory factory = new ConnectionFactory()
@@ -27,6 +36,14 @@ namespace Demo.Consumer.CustomerNotificationWorker
             };
             _connection = await factory.CreateConnectionAsync();
             _channel = await _connection.CreateChannelAsync();
+
+            await _channel.QueueDeclareAsync(
+                queue: QueueNames.CustomerNotificationQueue,
+                durable: true,
+                exclusive: false,
+                autoDelete: false
+            );
+
             await base.StartAsync(cancellationToken);
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -39,19 +56,25 @@ namespace Demo.Consumer.CustomerNotificationWorker
 
                 try
                 {
-                    var message = JsonSerializer.Deserialize<ConfirmatedScheduleEvent>(json);
-                    if(message is not null)
-                        await _confirmatedScheduleHandler.HandleCustomerScheduleConfirmation(message);
-                    else 
+                    using(var scope = _serviceProvider.CreateScope())
                     {
-                        var canceledMessage = JsonSerializer.Deserialize<CanceledScheduleEvent>(json);
-                        if(canceledMessage is not null)
-                            await _canceledScheduleHandler.HandleCustomerScheduleCancellation(canceledMessage);
-                        else
-                            _logger.LogWarning("[CUSTOMER WORKER] Mensagem recebida com formato desconhecido: {Json}", json);
-                    }
+                        var _confirmatedScheduleHandler = scope.ServiceProvider.GetRequiredService<ConfirmatedScheduleHandler>();
+                        var _canceledScheduleHandler = scope.ServiceProvider.GetRequiredService<CanceledScheduleHandler>();
+                        
+                        var message = JsonSerializer.Deserialize<ConfirmatedScheduleEvent>(json);
+                        if(message is not null)
+                            await _confirmatedScheduleHandler.HandleCustomerScheduleConfirmation(message);
+                        else 
+                        {
+                            var canceledMessage = JsonSerializer.Deserialize<CanceledScheduleEvent>(json);
+                            if(canceledMessage is not null)
+                                await _canceledScheduleHandler.HandleCustomerScheduleCancellation(canceledMessage);
+                            else
+                                _logger.LogWarning("[CUSTOMER WORKER] Mensagem recebida com formato desconhecido: {Json}", json);
+                        }
 
-                    await _channel.BasicAckAsync(ea.DeliveryTag, false, stoppingToken);
+                        await _channel.BasicAckAsync(ea.DeliveryTag, false, stoppingToken);
+                    }
                 }
                 catch(Exception ex)
                 {
