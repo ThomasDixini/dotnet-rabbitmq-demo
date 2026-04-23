@@ -1,15 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Demo.Consumer.Handlers;
 using Demo.Contracts.Events;
 using Demo.Contracts.Queues.Enum;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-
 namespace Demo.Consumer.CustomerNotificationWorker
 {
     public class CustomerNotificationWorker : BackgroundService

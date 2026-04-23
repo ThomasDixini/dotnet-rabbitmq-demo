@@ -1,4 +1,3 @@
-using Demo.Consumer;
 using Demo.Consumer.AdmNotificationWorker;
 using Demo.Consumer.CustomerNotificationWorker;
 using Demo.Consumer.Handlers;

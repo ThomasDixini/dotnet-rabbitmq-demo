@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Demo.Contracts.Events;
-
 namespace Demo.Consumer.Handlers
 {
     public class ConfirmatedScheduleHandler(ILogger<ConfirmatedScheduleHandler> _logger, HttpClient _http)

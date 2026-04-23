@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Demo.Contracts.Events.Interfaces;
 using Demo.Contracts.Queues.Enum;
 using RabbitMQ.Client;
-
 namespace Demo.API.Infra
 {
     public class RabbitMQPublisher : IEventPublisher, IDisposable

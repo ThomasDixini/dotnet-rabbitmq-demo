@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Demo.Contracts.Events;
-
 namespace Demo.Consumer.Handlers
 {
     public class CanceledScheduleHandler(ILogger<CanceledScheduleHandler> _logger, HttpClient _http)

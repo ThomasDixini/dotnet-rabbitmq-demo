@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Demo.API.Requests;
 using Demo.Contracts.Events.Interfaces;
 using Demo.Contracts.Queues.Enum;
 using Microsoft.AspNetCore.Mvc;
-
 namespace Demo.API.Controllers
 {
     [ApiController]

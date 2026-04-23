@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Demo.Contracts.Queues.Enum;
@@ -9,7 +5,6 @@ using Demo.Consumer.Handlers;
 using Demo.Contracts.Events;
 using System.Text;
 using System.Text.Json;
-
 namespace Demo.Consumer.AdmNotificationWorker
 {
     public class AdmNotificationWorker : BackgroundService
